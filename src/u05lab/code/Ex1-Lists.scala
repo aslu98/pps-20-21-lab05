@@ -1,4 +1,6 @@
-package u04lab.code
+package u05lab.code
+
+import u05lab.code.List.cons
 
 import scala.annotation.tailrec
 import scala.language.postfixOps // silence warnings
@@ -11,13 +13,13 @@ sealed trait List[A] {
 
   def append(list: List[A]): List[A]
 
-  def foreach(consumer: (A) => Unit): Unit
+  def foreach(consumer: A => Unit): Unit
 
   def get(pos: Int): Option[A]
 
-  def filter(predicate: (A) => Boolean): List[A]
+  def filter(predicate: A => Boolean): List[A]
 
-  def map[B](fun: (A) => B): List[B]
+  def map[B](fun: A => B): List[B]
 
   def toSeq: Seq[A]
 
@@ -38,6 +40,8 @@ sealed trait List[A] {
   def reduce(op: (A,A)=>A): A
 
   def takeRight(n: Int): List[A]
+
+  def collect[B](f: PartialFunction[A,B]): List[B]
 
   // right-associative construction: 10 :: 20 :: 30 :: Nil()
   def ::(head: A): List[A] = Cons(head,this)
@@ -75,7 +79,7 @@ trait ListImplementation[A] extends List[A] {
     case h :: t => h :: (t append list)
     case _ => list
   }
-  override def foreach(consumer: (A)=>Unit): Unit = this match {
+  override def foreach(consumer: A =>Unit): Unit = this match {
     case h :: t => {consumer(h); t foreach consumer}
     case _ => None
   }
@@ -83,15 +87,6 @@ trait ListImplementation[A] extends List[A] {
     case h :: t if pos == 0 => Some(h)
     case h :: t if pos > 0 => t get (pos-1)
     case _ => None
-  }
-  override def filter(predicate: (A) => Boolean): List[A] = this match {
-    case h :: t if (predicate(h)) => h :: (t filter predicate)
-    case _ :: t => (t filter predicate)
-    case _ => Nil()
-  }
-  override def map[B](fun: (A) => B): List[B] = this match {
-    case h :: t => fun(h) :: (t map fun)
-    case _ => Nil()
   }
 
   override def toSeq: Seq[A] = this match {
@@ -115,19 +110,52 @@ trait ListImplementation[A] extends List[A] {
     case Nil() => Nil()
   }
 
-  override def zipRight: List[(A,Int)] = ??? // questions: what is the type of keyword ???
+  override def zipRight: List[(A,Int)] = {
+    var k = -1;
+    this.map(e => {k+=1; (e, k)})
+  }
 
-  override def partition(pred: A => Boolean): (List[A],List[A]) = ???
+  override def partition(pred: A => Boolean): (List[A],List[A]) = (this.filter(pred), this.filter(!pred(_)))
 
-  override def span(pred: A => Boolean): (List[A],List[A]) = ???
+  override def span(pred: A => Boolean): (List[A],List[A]) = {
+    @tailrec
+    def _span(res: (List[A],List[A]), pred: A => Boolean): (List[A],List[A]) = res._2 match {
+      case h :: t if pred(h) => _span((h :: res._1, t), pred)
+      case _ => (res._1.reverse(), res._2);
+    }
+    _span((List.nil, this), pred)
+  }
 
   /**
     *
     * @throws UnsupportedOperationException if the list is empty
     */
-  override def reduce(op: (A,A)=>A): A = ???
+  override def reduce(op: (A,A)=>A): A = this match {
+    case h :: t if t == List.nil => h
+    case h :: t => op(h, t.reduce(op))
+    case _ => throw new UnsupportedOperationException
+  }
 
-  override def takeRight(n: Int): List[A] = ???
+  override def takeRight(n: Int): List[A] = {
+    def _takeRight(n:Int, res: List[A]): List[A] = res match {
+      case h :: t if n > 0 => h :: _takeRight(n-1, t)
+      case _ => List.nil
+    }
+    _takeRight(n, this.reverse()).reverse()
+  }
+
+  override def filter(predicate: A => Boolean): List[A] = this match {
+    case h :: t if predicate(h) => h :: (t filter predicate)
+    case _ :: t => (t filter predicate)
+    case _ => Nil()
+  }
+
+  override def map[B](fun: A => B): List[B] = this match {
+    case h :: t => fun(h) :: (t map fun)
+    case _ => Nil()
+  }
+
+  override def collect[B](f: PartialFunction[A,B]): List[B] = this.filter(f.isDefinedAt).map(f)
 }
 
 // Factories
@@ -183,5 +211,5 @@ object ListsTest extends App {
   println(l.takeRight(2)) // Cons(30,Cons(40,Nil()))
 
   // Ex. 6: collect
-  // println(l.collect { case x if x<15 || x>35 => x-1 }) // Cons(9, Cons(39, Nil()))
+  println(l.collect{case x if x < 15 || x > 35 => x-1}) // Cons(9, Cons(39, Nil()))
 }
