@@ -52,19 +52,19 @@ object ExamsManager extends App {
   }
 
   case class ExamsManagerImpl() extends ExamsManager {
-    private[this] var mainMap: Map[String, Map[String, ExamResult]] = HashMap()
+    private[this] val mainMap: mutable.Map[String, mutable.Map[String, ExamResult]] = mutable.HashMap()
 
     override def createNewCall(call: String): Unit =
-      if (mainMap.contains(call)) throw new IllegalArgumentException else mainMap = mainMap + (call -> HashMap())
+      if (mainMap.contains(call)) throw new IllegalArgumentException else mainMap += (call -> mutable.HashMap())
 
     override def addStudentResult(call: String, student: String, result: ExamResult): Unit =
-      if (mainMap(call).contains(student)) throw new IllegalArgumentException else mainMap = mainMap - call + (call -> (mainMap(call) + (student -> result)))
+      if (mainMap(call).contains(student)) throw new IllegalArgumentException else mainMap(call) += (student -> result)
 
     override def getAllStudentsFromCall(call: String): scala.collection.Set[String] =
       mainMap(call).keySet
 
     override def getEvaluationsMapFromCall(call: String): Map[String, Int] =
-      mainMap(call) collect { case (stud:String, res:ExamResult) if res.getEvaluation.isDefined => (stud, res.getEvaluation.get)}
+     mainMap(call) collect { case (stud:String, res:ExamResult) if res.getEvaluation.isDefined => (stud, res.getEvaluation.get)} toMap
 
     override def getResultsMapFromStudent(student: String): Map[String, String] = {
       var studMap: Map[String, String] = HashMap()
