@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions._
 import u05lab.code._
 
-class SomeTest {
+class ListsTests {
 
   @Test
   def testZipRight(): Unit ={
@@ -48,10 +48,5 @@ class SomeTest {
     val l = List(1, 2, 3, 5, 6);
     assertEquals(List(0, 1, 5), l.collect{case x if x < 3 || x > 5 => x-1})
     assertEquals(List.nil, l.collect{case x if x < 1 || x > 10 => x-1})
-  }
-
-  @Test
-  def testIncremental() {
-    assert(true)
   }
 }
