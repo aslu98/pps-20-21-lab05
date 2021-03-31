@@ -42,37 +42,37 @@ object PerformanceUtils {
 object CollectionsTest extends App {
 
   private val numberOfElems: Int = 1000000
-  private var seqs: mutable.HashMap[String, Iterable[Int]] = mutable.HashMap()
+  private var iterables: mutable.LinkedHashMap[String, Iterable[Int]] = mutable.LinkedHashMap()
   println("CREATE")
 
   /* Linear sequences: List, ListBuffer */
 
-  measure("list create") {scala.collection.immutable.List.range(1, numberOfElems)}
-  seqs += ("list" -> scala.collection.immutable.List.range(1, numberOfElems))
-  measure("bufferList create") {mutable.ListBuffer.range(1, numberOfElems)}
-  seqs += ("bufferList" -> mutable.ListBuffer.range(1, numberOfElems))
+  measure("IMM list create") {scala.collection.immutable.List.range(1, numberOfElems)}
+  iterables += ("IMM list" -> scala.collection.immutable.List.range(1, numberOfElems))
+  measure("MUT bufferList create") {mutable.ListBuffer.range(1, numberOfElems)}
+  iterables += ("MUT bufferList" -> mutable.ListBuffer.range(1, numberOfElems))
 
   /* Indexed sequences: Vector, Array, ArrayBuffer */
-  measure("vector create") {Vector.range(1, numberOfElems)}
-  seqs += ("vector" -> Vector.range(1, numberOfElems))
-  measure("array create") {Array.range(1, numberOfElems)}
-  seqs += ("array" -> Array.range(1, numberOfElems))
-  measure("arrayBuffer create") {mutable.ArrayBuffer.range(1, numberOfElems)}
-  seqs += ("arrayBuffer" -> mutable.ArrayBuffer.range(1, numberOfElems))
+  measure("IMM vector create") {Vector.range(1, numberOfElems)}
+  iterables += ("IMM vector" -> Vector.range(1, numberOfElems))
+  measure("PARMUT array create") {Array.range(1, numberOfElems)}
+  iterables += ("PARMUT array" -> Array.range(1, numberOfElems))
+  measure("MUT arrayBuffer create") {mutable.ArrayBuffer.range(1, numberOfElems)}
+  iterables += ("MUT arrayBuffer" -> mutable.ArrayBuffer.range(1, numberOfElems))
 
   /* Sets */
-  measure("hashset create") {immutable.HashSet.range(1,numberOfElems)}
-  seqs += ("hashset" -> (immutable.HashSet.range(1,numberOfElems)))
-  measure("treeset create") {mutable.TreeSet.from(1 to numberOfElems)}
-  seqs += ("treeset" -> (mutable.TreeSet.from(1 to numberOfElems)))
+  measure("IMM hashset create") {immutable.HashSet.range(1,numberOfElems)}
+  iterables += ("IMM hashset" -> (immutable.HashSet.range(1,numberOfElems)))
+  measure("MUT treeset create") {mutable.TreeSet.from(1 to numberOfElems)}
+  iterables += ("MUT treeset" -> (mutable.TreeSet.from(1 to numberOfElems)))
 
   /* Maps */
-  measure("hashmap create") {immutable.HashMap((1,numberOfElems) -> (numberOfElems, numberOfElems*2))}
-  seqs += ("hashmap" -> immutable.HashMap((1,numberOfElems) -> (numberOfElems, numberOfElems*2)).asInstanceOf[Iterable[Int]])
-  measure("treemap create") {mutable.TreeMap((1,numberOfElems) -> (1,numberOfElems))}
-  seqs += ("treemap" -> mutable.TreeMap((1,numberOfElems) -> (1,numberOfElems)).asInstanceOf[Iterable[Int]])
+  measure("IMM hashmap create") {immutable.HashMap((1,numberOfElems) -> (numberOfElems, numberOfElems*2))}
+  iterables += ("IMM hashmap" -> immutable.HashMap((1,numberOfElems) -> (numberOfElems, numberOfElems*2)).asInstanceOf[Iterable[Int]])
+  measure("MUT treemap create") {mutable.TreeMap((1,numberOfElems) -> (1,numberOfElems))}
+  iterables += ("MUT treemap" -> mutable.TreeMap((1,numberOfElems) -> (1,numberOfElems)).asInstanceOf[Iterable[Int]])
 
   import PerformanceUtils._
-  calculatePerformance[Int](seqs, numberOfElems)
+  calculatePerformance[Int](iterables, numberOfElems)
   /* Comparison */
 }
