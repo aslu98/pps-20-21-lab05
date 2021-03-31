@@ -31,9 +31,6 @@ object PerformanceUtils {
     println("SIZE")
     for ((name, seq) <- seqs) measure(name + " size"){ seq.size }
     println()
-    println("UPDATE")
-    for ((name, seq) <- seqs) measure(name + " update"){ seq.map(_+ "up") }
-    println()
     println("DELETE")
     for ((name, seq) <- seqs) measure(name + " delete"){ seq.dropRight(numberOfElems) }
   }
@@ -47,8 +44,10 @@ object CollectionsTest extends App {
 
   /* Linear sequences: List, ListBuffer */
 
-  measure("IMM list create") {scala.collection.immutable.List.range(1, numberOfElems)}
-  iterables += ("IMM list" -> scala.collection.immutable.List.range(1, numberOfElems))
+  val l = mutable.ListBuffer.range(1, numberOfElems)
+  l.update(3, 3)
+  measure("IMM list create") {immutable.List.range(1, numberOfElems)}
+  iterables += ("IMM list" -> immutable.List.range(1, numberOfElems))
   measure("MUT bufferList create") {mutable.ListBuffer.range(1, numberOfElems)}
   iterables += ("MUT bufferList" -> mutable.ListBuffer.range(1, numberOfElems))
 
@@ -63,14 +62,26 @@ object CollectionsTest extends App {
   /* Sets */
   measure("IMM hashset create") {immutable.HashSet.range(1,numberOfElems)}
   iterables += ("IMM hashset" -> (immutable.HashSet.range(1,numberOfElems)))
+  measure("MUT hashset create") {mutable.HashSet.range(1,numberOfElems)}
+  iterables += ("MUT hashset" -> (mutable.HashSet.range(1,numberOfElems)))
+  measure("IMM treeset create") {immutable.TreeSet.from(1 to numberOfElems)}
+  iterables += ("IMM treeset" -> (immutable.TreeSet.from(1 to numberOfElems)))
   measure("MUT treeset create") {mutable.TreeSet.from(1 to numberOfElems)}
   iterables += ("MUT treeset" -> (mutable.TreeSet.from(1 to numberOfElems)))
 
   /* Maps */
-  measure("IMM hashmap create") {immutable.HashMap((1,numberOfElems) -> (numberOfElems, numberOfElems*2))}
-  iterables += ("IMM hashmap" -> immutable.HashMap((1,numberOfElems) -> (numberOfElems, numberOfElems*2)).asInstanceOf[Iterable[Int]])
-  measure("MUT treemap create") {mutable.TreeMap((1,numberOfElems) -> (1,numberOfElems))}
-  iterables += ("MUT treemap" -> mutable.TreeMap((1,numberOfElems) -> (1,numberOfElems)).asInstanceOf[Iterable[Int]])
+  var immHashMap = immutable.HashMap[Int, Int](); for (i <- 1 to numberOfElems) immHashMap = immHashMap.updated(i, i+1)
+  measure("IMM hashmap create") {var m = immutable.HashMap[Int, Int](); for (i <- 1 to numberOfElems) m = m.updated(i, i+1)}
+  iterables += ("IMM hashmap" -> immHashMap.asInstanceOf[Iterable[Int]] )
+  var mutHashMap = mutable.HashMap[Int, Int](); for (i <- 1 to numberOfElems) mutHashMap.update(i, i+1)
+  measure("MUT hashmap create") {val m = mutable.HashMap[Int, Int](); for (i <- 1 to numberOfElems) m.update(i, i+1)}
+  iterables += ("MUT hashmap" -> mutHashMap.asInstanceOf[Iterable[Int]])
+  var immTreeMap = immutable.TreeMap[Int, Int](); for (i <- 1 to numberOfElems) immTreeMap = immTreeMap.updated(i, i+1)
+  measure("IMM treemap create") {var immTreeMap = immutable.TreeMap[Int, Int](); for (i <- 1 to numberOfElems) immTreeMap = immTreeMap.updated(i, i+1)}
+  iterables += ("IMM treemap" -> immTreeMap.asInstanceOf[Iterable[Int]]  )
+  var mutTreeMap = mutable.TreeMap[Int, Int](); for (i <- 1 to numberOfElems) mutTreeMap.update(i, i+1)
+  measure("MUT treemap create") {var mutTreeMap = mutable.TreeMap[Int, Int](); for (i <- 1 to numberOfElems) mutTreeMap.update(i, i+1)}
+  iterables += ("MUT treemap" -> mutTreeMap.asInstanceOf[Iterable[Int]]  )
 
   import PerformanceUtils._
   calculatePerformance[Int](iterables, numberOfElems)
