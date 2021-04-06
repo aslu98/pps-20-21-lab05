@@ -27,7 +27,7 @@ object ExamsManager extends App {
     def succeeded(evaluation: Int): ExamResult
   }
 
-  case class ExamsResultFactoryImpl() extends ExamResultFactory{
+  case class ExamResultFactoryImpl() extends ExamResultFactory{
     private case class ExamResultImpl(kind: Kind, eval:Option[Int], laude: Boolean) extends ExamResult {
       if (eval.isDefined && (eval.get < 18 || eval.get > 30)) throw new IllegalArgumentException()
       override def getKind: Kind = kind

@@ -6,7 +6,7 @@ import u05lab.code.ExamsManager._
 
 class ExamsManagerTests {
 
-  val erf: ExamsResultFactoryImpl = ExamsResultFactoryImpl()
+  val erf: ExamResultFactoryImpl = ExamResultFactoryImpl()
   val em: ExamsManager = ExamsManagerImpl();
 
   @Test
