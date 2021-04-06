@@ -3,7 +3,6 @@ package u05lab
 import org.junit.jupiter.api.Assertions._
 import org.junit.jupiter.api.Test
 import u05lab.code.ExamsManager._
-import u05lab.code._
 
 class ExamsManagerTests {
 
@@ -102,8 +101,6 @@ class ExamsManagerTests {
 
   @Test def optionalTestExamsManagement() {
     this.prepareExams;
-
-    // miglior voto acquisito da ogni studente, o vuoto..
     assertEquals(Option.apply(25), em.getBestResultFromStudent("rossi"))
     assertEquals(Option.apply(25), em.getBestResultFromStudent("bianchi"))
     assertEquals(Option.apply(30), em.getBestResultFromStudent("neri"))

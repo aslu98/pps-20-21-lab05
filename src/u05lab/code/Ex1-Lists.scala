@@ -1,7 +1,5 @@
 package u05lab.code
 
-import u05lab.code.List.cons
-
 import scala.annotation.tailrec
 import scala.language.postfixOps // silence warnings
 
@@ -156,6 +154,11 @@ trait ListImplementation[A] extends List[A] {
   }
 
   override def collect[B](f: PartialFunction[A,B]): List[B] = this.filter(f.isDefinedAt).map(f)
+}
+
+object OptSequence {
+  def sequence[A](l: List[Option[A]]): Option[List[A]] =
+    l.foldRight(Option(List.nil[A]))((newel, actual) => if (newel.isDefined && actual.isDefined) Some(newel.get :: actual.get) else None)
 }
 
 // Factories

@@ -49,4 +49,11 @@ class ListsTests {
     assertEquals(List(0, 1, 5), l.collect{case x if x < 3 || x > 5 => x-1})
     assertEquals(List.nil, l.collect{case x if x < 1 || x > 10 => x-1})
   }
+
+  @Test
+  def testOptSequence(): Unit ={
+    import u05lab.code.OptSequence.sequence
+    assertEquals(Some(List(1, 2, 3)), sequence[Int](List(Some(1),Some(2),Some(3))))
+    assertEquals(None, sequence[Int](List(Some(1),None,Some(3))))
+  }
 }
