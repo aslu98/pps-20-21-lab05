@@ -28,18 +28,23 @@ object ExamsManager extends App {
   }
 
   case class ExamResultFactoryImpl() extends ExamResultFactory{
-    private case class ExamResultImpl(kind: Kind, eval:Option[Int], laude: Boolean) extends ExamResult {
-      if (eval.isDefined && (eval.get < 18 || eval.get > 30)) throw new IllegalArgumentException()
+    private case class AbstractExamResult(kind: Kind, eval:Option[Int], laude: Boolean) extends ExamResult {
       override def getKind: Kind = kind
       override def getEvaluation: Option[Int] = eval
       override def cumLaude: Boolean = laude
       override def toString: String = kind.toString + (if (eval.isDefined) " - " + eval.get else "") + (if (laude) "L" else "")
     }
 
-    override def failed: ExamResult = ExamResultImpl(Kind.Failed(), Option.empty, false)
-    override def retired: ExamResult = ExamResultImpl(Kind.Retired(), Option.empty, false)
-    override def succeededCumLaude: ExamResult = ExamResultImpl(Kind.Succeeded(), Option.apply(30), true)
-    override def succeeded(eval: Int): ExamResult = ExamResultImpl(Kind.Succeeded(), Option.apply(eval), false)
+    private def NotSucceededExamResult(kind: Kind): ExamResult = AbstractExamResult(kind, Option.empty, false)
+    private def SucceededExamResult(eval:Option[Int], laude: Boolean): ExamResult = {
+      if (eval.isDefined && (eval.get < 18 || eval.get > 30)) throw new IllegalArgumentException()
+      AbstractExamResult(Kind.Succeeded(), eval, laude)
+    }
+
+    override def failed: ExamResult = NotSucceededExamResult(Kind.Failed())
+    override def retired: ExamResult = NotSucceededExamResult(Kind.Retired())
+    override def succeeded(eval: Int): ExamResult = SucceededExamResult(Option.apply(eval), false)
+    override def succeededCumLaude: ExamResult = SucceededExamResult(Option.apply(30), true)
   }
 
   trait ExamsManager {

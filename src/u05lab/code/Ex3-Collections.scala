@@ -24,7 +24,7 @@ object PerformanceUtils {
   def calculatePerformance[A](seqs: Map[String, Iterable[A]], numberOfElems: Int): Unit ={
     println()
     println("LAST")
-    for ((name, seq) <- seqs) measure(name + " last " + seq.getClass.getName){seq.last}
+    for ((name, seq) <- seqs) measure(name + " last "){seq.last}
     println()
     println("SIZE")
     for ((name, seq) <- seqs) measure(name + " size"){ seq.size }
